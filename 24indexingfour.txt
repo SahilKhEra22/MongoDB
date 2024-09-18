@@ -1,0 +1,146 @@
+indexing part 4
+
+3. multi-key index :-
+
+previous indexing was on non-array fields
+A multi-key index is an index that can be created on an array field 
+
+ex:-
+
+{
+  "_id": 1,
+  "name": "Alice",
+  "subjects": ["Math", "Physics", "Chemistry"]
+}
+
+db.collection.createIndex('subjects:1') 
+
+db.students.createIndex({ subjects: 1, otherField: 1 }) // Not allowed if both are arrays
+
+
+When you create a multi-key index on a field that contains an array, MongoDB creates an index entry for each element in the array.
+means for math there will be unique b-tree which will represent  all the doc which will be present in which math in array will be present similarly for physics and chemistry 
+
+This enables you to query within arrays efficiently.
+
+so it can quickly look up doc that match a specific value.
+
+If you create an index on the subjects field, MongoDB will treat it as a multi-key index because subjects is an array
+
+db.collection.find({},{name:1,_id:0}) // using projection to get data
+ 
+disadvantage :
+
+1. if we are using multi-key-index then it will use more space
+
+2. Write Performance: Inserting or updating documents with arrays indexed by multi-key indexes can be slower, as MongoDB must create or update multiple index entries.
+
+
+**4. Text index:-
+In MongoDB, a text index is a special type of index that allows you to perform text search queries on string content within your documents.
+
+Text indexes are particularly useful for full-text search, where you want to find documents containing specific words or phrases.
+
+1. Single text index per collection :-
+Means there will be only one text index in one collection.
+ 
+2. Tokenization and Stemming :- 
+
+* Tokenization means it will make array of string 
+
+* Stemming is a natural language processing (NLP) technique used to reduce words to their base or root form, known as the "stem."
+
+The purpose of stemming is to treat different forms of a word as the same term, which helps improve the performance of text-processing tasks such as search engines, text classification, and information retrieval
+
+ex:-
+Words: running, runner, ran
+Stem: run
+
+3. relevance score :-
+
+A relevance score is a numerical value that indicates how closely a particular document, piece of content, or search result matches a given query or set of criteria.
+
+In various applications like search engines, recommendation systems, and information retrieval, relevance scores help rank and order results so that the most relevant items are presented first.
+
+When you search for something, the search engine calculates a relevance score for each possible result.
+
+
+Key Features of Text Indexes:
+*Multi-Language Support: MongoDB supports text indexes in various languages, and the text index will apply language-specific rules for stemming and tokenization.
+*Text Search Capabilities: You can search for words, phrases, and perform more complex text queries with operators like $text, $search, $language, etc.
+*Compound Text Indexes: You can create a text index on multiple fields or combine a text index with other types of indexes.
+
+ex:-
+
+we can't create multiple text indexes but we can create text index on multiple fields 
+
+syntax:
+db.collection.createIndex({ field: "text" })
+
+ex:-
+{
+  "_id": 1,
+  "title": "Introduction to MongoDB",
+  "content": "MongoDB is a NoSQL database that provides high performance, high availability, and easy scalability."
+}
+
+we are creating text index on title and content field
+db.students.createIndex({title:"text",content:"text"})
+
+
+we are searching using text index
+db.students.find({$text{$search:"mongodb"}}) 
+
+1. here we are using $text keyword that indicates that we are searching in text index
+2. $search indicates that we are searching documents which will have mongodb word  (it is not case senitive)
+3. in this way we will get those doc in return which will have mongodb in their title or content field
+
+
+*if we want to see text score or relevance score
+db.students.find($text{$search:"mongodb"},{dedoscore:{$meta:"textScore"}}) 
+
+1. it will search doc based on first query 
+2. second query will get text score from meta data of the query after its execution  and will store that score in dedoscore variable 
+3. and will add dedoscore field in returned documents where we can see the score of the document in the value of dedoscore
+
+
+
+* if we want a doc which has youtube in a field and not a actor
+db.students.find($text{$search:"youtube -actor"}}) 
+
+
+* although priority of the doc  will be according to relevance score but if we want to prioritize the doc in own way then we can use custom weights
+
+db.students.createIndex({name:"text",bio:"text"},{weights:{name:1000,bio:1}})
+ 
+now name field has higher priority then bio field
+so when doc will be return then those doc will be in top which will have  searched text in name field 
+
+because now relevance score will be set according to custom weights
+
+
+* if we want to sort docs
+
+db.students.find({$text:{$search:"actor sita"}},{dedoScore:{$meta:"textScore"}}).sort({dedoScore:{$meta:"textScore"}})
+it will sort the document according to textscore(relevance score)
+always in descending order
+
+1. The .sort() method sorts the documents returned by the query.
+2. { dedoScore: { $meta: "textScore" } }: 
+This sorts the documents by the dedoScore field in descending order, meaning the most relevant documents (with the highest scores) will appear first in the results.
+
+
+
+note:
+suppose we 1 crore doc in a collection of database
+we apply indexing on it ,obviously it will take time 
+until index is created no query can be performed on collection because collection will be locked for index creation
+
+so we can use {background:true}
+db.collection.createIndex({},{background:true})
+now only those collection  will be locked for only those queries that are based on index other quires will work fine.
+
+
+
+
+

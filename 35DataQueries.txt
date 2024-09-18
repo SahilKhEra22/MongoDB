@@ -1,0 +1,116 @@
+Date Queries in mongodb
+
+$year
+$month
+$dataToString
+
+
+definition:
+In MongoDB, dates are stored as BSON Date type, which represents a timestamp in milliseconds since the Unix epoch (January 1, 1970). 
+MongoDB provides a variety of methods for querying, inserting, and manipulating dates
+
+Common Uses of Dates in MongoDB:
+1. Storing Dates: Dates are typically stored as part of documents, either manually provided or automatically generated.
+
+2. Querying Dates: MongoDB offers various query operators to filter documents based on dates.
+
+3. Manipulating Dates: Dates can be manipulated using aggregation pipeline stages, such as $dateAdd, $dateSubtract, $year, $month, etc.
+
+
+ex:-
+
+1. db.students.insertOne({_id:0,name:"Ram",dob:ISODate("2000-10-16")}) //yy-mm-dd || saving dob
+
+we use ISODate()(datadatatype) function to create dates || it takes a string as input 
+
+//although we can provide date in string but it is not good approach because we can not do operations on it even we can't compare, converge it 
+
+2. db.students.find().pretty() -> you can see date and time separated by T there in doc.
+  z represents UTC (coordinated universal time -> standard to measure the time of world which is default if we don't provide) time zone 
+
+1. Time Zone: UTC has no time zone offset, meaning it is equivalent to UTC+0.
+2. No Daylight Saving Time: UTC time does not change for daylight saving.
+3. 24-hour format: The time is usually expressed in 24-hour format (e.g., 14:00 instead of 2:00 PM).
+
+3.db.students.insertOne({_id:1,name:"shayam",dob:ISODate("2000-01-25T14:20:23Z")}) // T h:m:s
+ Here we knows time but not time zone
+
+4. db.students.insertOne({_id:2,name:"sahil",dob:"2005-10-16T14:20:23+02:00"}) +H:M
+here we knows the time zone so replaced z with + and provide hours which means 2 hours ahead of utc called time zone offset 
+
+means this time zone is 2 hours ahead of utc time zone 
+
+*General Time Zone Conversion Rule:
+
+To convert a time with a positive offset like +02:00 to UTC, you subtract the offset from the time. If it had been a negative offset (e.g., -02:00), you would add the offset to get the UTC time.
+
+* Here's a breakdown:
+
+14:20:23+02:00: The original time is 14:20:23 (2:20:23 PM) in a time zone that is 2 hours ahead of UTC.
+
+To convert this to UTC, you subtract the 2-hour offset (+02:00 means 2 hours ahead of UTC).
+
+
+*Queries
+
+1.will give doc greater than the provided date
+db.students.find({dob:{$gte:ISODate("2000-12-12")}}) 
+
+2. we can sort doc based on date
+db.students.find().sort({dob:-1})
+
+3. we can use aggregate
+$year operator 
+we want to group docs based on years
+db.students.aggregate([{$group:{_id:{$year:"$dob"}}}])
+
+The $year operator extracts the year from a Date object.
+It takes a Date object as its argument and returns the year as a number.
+
+*there are many operators like $year operator :
+$dayOfMonth-> to get day of month 
+$month -> to get month 
+$dayOfYear -> to get day between 1 to 366
+$hour -> between 0 to 23
+$minute -> 0 to 59
+$second -> 0 to 59
+$millisecond -> 
+
+milliseconds will be provide only when it will be stored in doc while creating ISODate otherwise 0 will return 
+ex:- db.students.insertOne({_id:2,name:"sahil",dob:("2005-10-16T14:20:23:23+02:00")})
+
+
+* we have a entery of Dob which took birth just now
+db.students.insertOne({_id:3,name:"sk",dob:new Date()}) // it will display todays current time and date 
+
+
+* what if we want to add dates and time in our own format 
+syntax:
+use this syntax in aggregate pipeline
+{$dateToString:{format:"<your_custom_format>",date:<date_exppression>}}
+
+db.students.aggreagate([{$project:{name:1},{name:1,_id:0,
+dob:{$dateToString:{format:"%d/%m/%Y %H:%MM%S",date:"$dob"}}}}]) // In date we have provided field of doc 
+
+explained:
+$project Stage:
+
+This stage reshapes each document. It allows you to include or exclude fields and to compute new fields.
+name: 1:
+
+This includes the name field in the output documents.
+_id: 0:
+
+This excludes the _id field from the output documents.
+dob: { $dateToString: { format: "%d/%m/%Y %H:%M:%S", date: "$dob" } }:
+
+$dateToString: This operator formats a Date object as a string based on the specified format.
+format: The format specifies how the date should be converted into a string.
+%d: Day of the month (01 to 31).
+%m: Month (01 to 12).
+%Y: Year (e.g., 2024).
+%H: Hour (00 to 23).
+%M: Minute (00 to 59).
+%S: Second (00 to 59).
+date: Refers to the dob field in your documents.
+

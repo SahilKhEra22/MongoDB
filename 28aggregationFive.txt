@@ -1,0 +1,159 @@
+Aggregation part 5
+
+$lookup operator
+
+it is used to join documents
+there are 4 types of joins
+1. inner Join -> returns only matching docs of collection
+2. Left Outer Join -> all fields matching and non-matching of the left collection will be present and only matching field of right collection will be present  
+3. right Outer Join -> all fields matching and non-matching of the right collection will be present and only matching field of left collection will be present
+4. Full Outer join -> all fields of both left and right collection will be present 
+
+$lookup is an aggregation pipeline stage that allows yo to perform a left outer join between two collection
+
+$syntax:-
+db.collection1.aggregate([
+{
+$lookup:{
+
+from:"foreignCollection", // the collection to join with collection1
+localFiled:"localField", // the field from the current collection
+foreignField:"foreginField"// the field from the collection to join 
+as:"outputArray"//the name of the array to store the joined documents
+}
+}
+])
+
+*from: The name of the collection you want to join with the current collection.
+*localField: The field in the current collection that will be matched against the foreignField in the joined collection.
+*foreignField: The field in the from collection that will be matched against the localField.
+*as: The name of the field in the output document where the array of matched documents will be stored.
+
+ex:-
+*left outer join:
+suppose you have two collections:
+
+1. orders:
+[
+  { "_id": 1, "product_id": 1, "quantity": 2 },
+  { "_id": 2, "product_id": 2, "quantity": 1 },
+  { "_id": 3, "product_id": 1, "quantity": 4 }
+]
+
+2. products:
+[
+  { "_id": 1, "name": "Laptop", "price": 1000 },
+  { "_id": 2, "name": "Mouse", "price": 50 }
+]
+
+You want to join the products collection with the orders collection to include product details in each order document.
+
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "products",            // The collection to join with
+      localField: "product_id",    // The field in 'orders' collection
+      foreignField: "_id",         // The field in 'products' collection
+      as: "productDetails"         // The output array field to store joined documents
+    }
+  }
+])
+
+if any doc of orders will not have product_id then there will be []empty productDetails field  
+explain:
+* from: "products"
+
+This specifies that the join will be performed with the products collection.
+
+* localField: "product_id"
+This is the field in the orders collection that will be matched against the _id field in the products collection.
+
+* foreignField: "_id"
+This is the field in the products collection that will be matched against the product_id field in the orders collection.
+
+* as: "productDetails"
+The matched documents from the products collection will be included in the orders documents under the productDetails field as an array.
+
+
+*Result:
+[
+  {
+    "_id": 1,
+    "product_id": 1,
+    "quantity": 2,
+    "productDetails": [
+      { "_id": 1, "name": "Laptop", "price": 1000 }
+    ]
+  },
+  {
+    "_id": 2,
+    "product_id": 2,
+    "quantity": 1,
+    "productDetails": [
+      { "_id": 2, "name": "Mouse", "price": 50 }
+    ]
+  },
+  {
+    "_id": 3,
+    "product_id": 1,
+    "quantity": 4,
+    "productDetails": [
+      { "_id": 1, "name": "Laptop", "price": 1000 }
+    ]
+  }
+]
+
+
+For each order document, the productDetails field contains an array with the matched product document(s) from the products collection
+
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "products",            
+      localField: "product_id",
+      foreignField: "_id",         
+      as: "productDetails"        
+    }
+  }
+]).preety()
+
+.pretty(): This method formats the output in a more readable way with proper indentation and line breaks, making it easier to understand the structure of the resulting documents.
+
+** similarly we can do right outer join
+
+***inner join():
+
+db.orders.aggregate([
+  {
+    $lookup: {
+      from: "products",            // The collection to join with
+      localField: "product_id",    // The field in 'orders' collection
+      foreignField: "_id",         // The field in 'products' collection
+      as: "productDetails"         // The output array field to store joined documents
+    }
+  },
+  {
+    $match: {                      // Emulate inner join
+      productDetails: { $ne: [] }   // Only include orders with matching products
+    }
+  }
+])
+
+Explanation
+* $lookup Stage:
+1. Performs a left outer join between the orders collection and the products collection based on the product_id field in orders and the _id field in products.
+2. The matched product details are stored in the productDetails array for each orders document.
+
+* $match Stage:
+1. Filters out any orders documents where the productDetails array is empty (i.e., no matching product was found).
+2. The condition { productDetails: { $ne: [] } } ensures that only documents where the productDetails array is not empty are returned. This simulates an inner join, where only records with matches in both collections are kept.
+
+****full outer join
+
+
+MongoDB's aggregation framework does not natively support a full outer join directly, as it typically handles left outer joins via the $lookup operator. However, you can simulate a full outer join by performing a union of two separate queries:
+
+1. A left outer join from orders to products.
+2. A left outer join from products to orders.
+ 
+

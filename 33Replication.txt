@@ -1,0 +1,158 @@
+replication like pro 
+
+* we have a running mongo server (node)
+* and there will be replica of that server
+* all these three nodes are a part of set called replica set, which has three servers 
+in which one is primary and other are replicas
+
+
+since we are on local so their IP will local host and different port 
+ex:- locahlhost:27018, locahlhost:27018, locahlhost:27018
+
+we will do operations on primary and replica will duplicate it automatically 
+
+(mongod command is used to run server)
+* go to mongodb configuration file -> mongod.cfg
+1. first uncomment replication:
+then add
+repSetName:"rs0" -> this rs0 can be any string 
+
+2. check the path of db in storage:
+storage:
+dbPath: path
+C:\Program Files\MongoDB\Server\7.0\data>
+go to this path in cmd
+use dir command to see all directory and folders in data directory
+and make three folders db1 db2 db3
+these folders are primary server and replicas
+
+
+
+1. now open three cmd/terminal 
+open path : C:\Program Files\MongoDB\Server\7.0\data>
+run command : mongod --port 27018 --dbpath "C:\Program Files\MongoDB\Server\7.0\data\db1" --replSet res0  //if mongod does not work use mongosh
+
+press enter and it will run the database on  localhost:27018 
+
+explanation:
+here we have given port number database path which we want to make primary database and replicaSet res0 means our first database
+
+--replSet res0:
+
+1. This option initiates the server as part of a replica set.
+2. A replica set is a group of MongoDB instances that maintain the same data set, providing redundancy and high availability.
+3. res0 is the name of the replica set. This name must be the same across all members of the replica set.
+
+*The Role of the Replica Set Name (res0):
+1.res0 is simply the name you’ve chosen for your replica set. The name can be any string you choose, and it’s used to identify the replica set within your MongoDB deployment.
+
+2.Consistency Across Members: All MongoDB instances (nodes) that are part of the same replica set must use the same replica set name. This ensures that they recognize each other as members of the same set and can replicate data amongst themselves. 
+
+2. run instance 2 on localhost:27019
+mongod --port 27019 --dbpath "c:\Program Files\MongoDB\Server\7.0\data\db2" --replSet res0
+
+3. run instance 2 on localhost:27020
+mongod --port 27020 --dbpath "c:\Program Files\MongoDB\Server\7.0\data\db3" --replSet res0
+
+
+4.open fourth terminal now
+
+create directory db in data in c -> C:/data/db/
+or
+open directory C:\Program Files\MongoDB\Server\7.0\data>
+
+do one of above things
+then  
+use command mongod --port 27018 in above location
+this ensure that mongodb server should run on port 27018
+if we don't mention it here then server will run on default port 27017 
+
+or provide path with command 
+
+mongosh --port 27018  --path "C:\Program Files\MongoDB\Server\7.0\data>"
+
+* now open another cmd terminal
+use command 
+mongosh --port 27017
+and server will be started 
+
+
+now
+*1.
+ rs.initiate({
+_id:"rs0",
+members:[
+{_id:0, host:"localhost:27018"},
+{_id:1, host:"localhost:27019"},
+{_id:2, host:"localhost:27020"}
+]
+})
+
+1. here first rs.initiate() is command (rs-> replica set)  which is variable  already defined under mongoshell.
+
+which ensures that multiple MongoDB instances (nodes) work together to keep the data consistent and highly available
+
+This command initializes a new replica set or modifies an existing one. It is run from the MongoDB shell on one of the nodes that you want to include in the replica set.
+
+2. { _id: "rs0", members: [...] }:
+This is the configuration object that defines your replica set.
+
+
+3. _id: "rs0":
+This specifies the name of the replica set. 
+rs0 is just a name, and you can choose any name you prefer. All nodes in the replica set must use this same name.
+
+4. members: [...]:
+This defines the list of MongoDB nodes that will be part of the replica set.
+
+5. { _id: 0, host: "localhost:27018" }:
+
+1. Each entry in the members array represents a member of the replica set.
+2. _id: 0: This is an identifier for the member within the replica set. Each member should have a unique _id.
+3. host: "localhost:27018": This specifies the address and port of the MongoDB instance. In this case, the instance is running on localhost (the same machine) on port 27018
+
+6. Additional Members:
+The other two members are similarly defined:
+{ _id: 1, host: "localhost:27019" }: Another member on port 27019.
+{ _id: 2, host: "localhost:27020" }: Another member on port 27020.
+
+
+2.
+use rs.status()
+* Check Replica Set Status: 
+
+*First, check the current status of your replica set to see if all members are properly configured and running.
+
+*here we can see all the members and additional info about them like which is primary server and which are secondary replica
+
+1. here we are on our primary server that is running on --port localhost:27018
+
+2. here we can create database,collection,doc in it and use any command here
+
+let's see all database here using show dbs and we can see all the bds
+
+3.let's open another terminal now use --port 27020 
+secondary db will be running here 
+
+in version 7.0 above we don't need to do following things but if there is any error then please follow 
+
+*by default we can't perform any operation or command here (not even read) only primary can do.
+
+if we want to perform read here then do following 
+
+use admin
+db.getMongo().setSecondaryOk()  //.setSlaveOk() is replaced by .setSecondaryok ()
+
+4. now run second replica or another replica --port 27020
+   follow all the steps of 3 line
+
+
+ex:- let's replicate 
+         add collection in primary
+ rs1:PRIMARY>   use mydb
+ db.employees.insertOne({name:"sahil",age:23,department:"IT"}) 
+
+now go to secondary replicas and check is there database and collection created in primary are present or not
+
+note: if we do write operation in secondary replicas then we will get error
+not master not primary

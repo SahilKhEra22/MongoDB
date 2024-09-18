@@ -1,0 +1,28 @@
+element query operators 
+
+$exists
+$type
+
+1. $exists -> used to check is field exists or not in the documents or not 
+
+db.students.find({hasMacBook:{$exists:true}})
+
+it will return all the documents in which hasMacBok field will be present 
+
+* we can add some for filter with it 
+
+db.students.find({hasMacBook:{$exists:true,$eq:true}})
+
+this will return all the docuemnts in which hasMacBook field will be present with value true
+
+2. $type -> used to check or return the data type of a field in a document 
+    
+* it is commonly used in queries and aggregation pipelines to filter documents based    on the type of a field's value or to get information about the type
+
+* we can see in mongo's documentation for available data types
+
+* field: { $type: <type> } // we can write a number or keyword as a value of $type present in documentation
+
+   1. db.students.find({hasMacBook:{$exists:true,$type:"bol"}})    -> it will return the document where hasMacBook field will be present and will have value type Boolean
+
+   2. db.students.find({hasMacBook:{$type:"bol"}})  -> it will return the document where hasMacBook's value will be Boolean  // we can even add number 8 in the value

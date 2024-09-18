@@ -1,0 +1,16 @@
+how to create DB in mongo
+
+1. open mongo db shell from c drive presss enter then ctrl + l to clear
+2. then use show dbs to see all databases
+3. use databsename -> if provided database exists then it will switch to that database otherwise it will create it 
+
+4. now if we want to create a new collection 
+   currentDatabase db.students  if in created database students collection exits then it will switch otherwise create 
+
+   curdatabase  db.students.insertOne({name:"sahil",age:23}) -> this will create a document in collection
+    after creating a doc we will get a object with acknowledgment true and obj id 
+
+5.  now we want to see
+   curdatabasename   db.students.find()  -> db means current open database then collection name then  find() method will searach and display all the documents of that collection
+
+ 

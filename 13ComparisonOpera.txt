@@ -1,0 +1,55 @@
+mongodb comparision operators 
+
+$eq equal to
+$lt less than
+$lte less than equal to 
+$in  in
+$ne  not equal to 
+$gt  greater than 
+$gte  greater than equal to
+$nin  not in 
+
+
+1. $eq 
+    db.students.find({age:12})
+    we can write it as 
+    db.students.find({age:{$eq:12}})
+  it will give all the documents with age 12
+
+2. $ne
+    db.students.find({age:{$ne:12}})
+    it will give all the document except documents with age 12
+
+3. $gt
+    db.students.find({age:{$gt:12}})
+    it will give all the document greater than age 12
+
+4.  $gte
+    db.students.find({age:{$gte:12}})    
+    it will give all the document greater than and equal to  age 12
+
+5.  $lt
+    db.students.find({age:{$lt:12}})    
+    it will give all the document less than and to  age 12
+
+6. $lte
+    db.students.find({age:{$lte:12}})    
+    it will give all the document less than and equal to  age 12
+
+7. $in
+   its value is array in which we provide various elements for query
+    db.students.find({age:{$in:[5,12]}})    
+    it will give all the documents with age 5 and 12
+
+8. $in
+    db.students.find({age:{$nin:[5,12]}})    
+    it will give all the documents except age 5 and 12
+
+
+
+note 
+db.students.find({hobbies:"dance"}) // it will search the dance element in hobbies array and will provide the doc
+db.students.find({"obj.obj2":true}) // if we are searching for nested array than we have to write keys in double or single quotes
+  
+
+   

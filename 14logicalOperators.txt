@@ -1,0 +1,50 @@
+logical operators 
+
+$and
+$or
+$nor
+$not
+
+1. $or
+   its value will be list or array in which conditions will be write
+    db.students.find({$or:[{age:{$lte:10}},{age:{$gte:12}}]}) 
+                          [{first condition},{second condition}]
+     $or returns doc only when one of the two condition will be satisfied
+
+2. $nor
+   its value will be list or array in which conditions will be write
+    db.students.find({$nor:[{age:{$lte:10}},{age:{$gte:12}}]}) 
+                          [{first condition},{second condition}]
+    $nor returns doc only when nor of conditions will be satisfied  
+
+
+$or returns one of the condition
+$nor returns nothing for matching conditions
+     
+
+3. $and
+    its value will be list or array in which conditions will be write
+    db.students.find({$and:[{age:{$lte:10}},{hobbies:"walk"}]}) 
+                        
+    $nor returns doc only when both of  conditions will be satisfied  
+
+      
+    or
+    db.students.find({age:{$lt:5},Hobbies:"walk"})
+   it will also give same output 
+     note:
+     db.students.find({age:{$lt:5},{age:{$gt:12}}) // here in json if we are giving same key then last one will work first one will be ignored
+
+but with $and both conditions will be checked 
+
+
+4. $not we can also use $ne at the place of this 
+   db.students.find({$and:[{age:{$not{$lt:5}}},{age:{$not{$gt:12}}}]})
+     
+     not operator reverse the meaning means make true false and flase true 
+     lt 5 means greater than 5 and gt 12 means less than 12
+   
+
+
+
+

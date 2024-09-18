@@ -1,0 +1,141 @@
+Transactions in mongo db:-
+
+This is especially useful when dealing with multiple collections or documents that need to be modified together.
+
+A transactions is a set of operations that are executed as a single, atomic unit.
+
+either all the operations in transaction will execute or nor will execute called rollback
+
+ex:-
+there is three operations, all those operations will be called transaction if all will execute successfully in this way transactions provide data consistency 
+
+
+* transactions are designed to provide ACID properties 
+ (Atomicity, Consistency, Isolation, Durability)
+
+
+1. Atomicity:
+
+Atomicity guarantees that a transaction is treated as a single, indivisible unit of work. 
+
+Either all the operations within the transaction are successfully completed and committed, or none of them are. if any part of the transaction fails, all changes made by the transaction are rolled back, leaving the data in its original state.
+
+
+2. Consistency:
+
+Consistency ensures that a transaction brings the database from one valid state to another.
+
+(valid state means like if we have made any field then it should be unique before and after transaction, we have a field roll no. and after transaction we are getting another duplicate field of roll no then it is not valid like this all fields should be with their constraints)
+
+it enforces any integrity constrains defined on the data, such as referential integrity  or uniqueness constraints.
+
+(we have a doc in collection that refers to another doc in another collection but it should exists if not exists then transaction will roll back called referential integrity)
+
+if a transaction violates any constraints, the entire transaction is rolled back, preserving data integrity.
+
+
+3. Isolation:
+
+it ensures that each transaction operates independently of other concurrent transactions. 
+(if transaction is happening then it will executed independently it doesn't care if any other transaction is also happening) 
+it prevents interference between concurrent transactions, preserving data integrity(data will be safe although n numbers of transactions are happening) and preventing unintended side effects.
+(suppose there is 1000 transactions all will be done independently they will not interfere among each other  )
+
+isolation levels define different levels of concurrency control, allowing developers to choose the appropriate levels of isolation for their use case.
+
+
+4. Durability:
+
+Durability guarantees that once a transaction is committed, its changes are permanently stored and will survive any subsequent system failures.
+
+Committed transactions are made durable by writing their changes to disk or other persistent storage. 
+
+this ensures that the data is not lost and can be recovered in the event of crash or failure.
+
+we can make backups replications etc.
+
+* when it comes to transactions, replication is crucial for maintaining the consistency and durability guarantees across multiple documents and collections involved in a transaction.
+
+ex:-
+how to start transaction
+
+var session =db.getMongo().startSession();
+session.startTransaction();
+
+var cust=session.getDatabase('bank').cust;
+cust.updateOne({_id:1},{$inc:{bal:-100}});
+
+cust.updateOne({_id:2},{$inc:{bal:100}});
+
+session.commitTransaction(); /session.abortTransaction();
+session.endSession();
+
+* in mongoshell do this above thing
+
+run three servers of a same set
+on primary server
+create bank db and cust collection 
+
+db.cust.insertOne({_id:0,name:"ram",bal:500})
+db.cust.insertOne({_id:0,name:"shyam",bal:0})
+
+these two doc are in cust collection
+
+we can update ram db.cust.updateOne({_id:0},{$inc:{bal:-100}}) //it will decrement the bal by 100 but it is not a transaction operation because there is no link with second doc 
+
+we use session for it 
+
+*Session:
+1. Session is a timeframe which keeps the track of transactions happened in one session for mongodb
+
+* use this command to start session:
+const session=db.getMongo().startSession();
+
+db.getMongo() give info about current connection 
+
+* now start transaction
+session.startTransaction()
+
+*now take access of database from session
+then take collection from that and store in variable 
+var custCollection = session.getDatabase("bank").cust;
+
+* now run updateOne on custCollection
+custCollection.updateOne({_id:0},{$inc:{bal:-100}})
+ 
+ok it will decrement the bal with 100
+
+*now increment the the bal of shayam
+custCollection.updateOne({_id:1,({$inc:{bal:100}})
+
+case 1:
+* now assume that you was about to run increment 100 of id:1 where bal is 0 
+  and some error occurs and money did not increment 
+
+then we will abort transaction and end session
+session.abortTransaction();
+session.endSession();
+
+* now run db.cust.find() you will see all the collection will be same with information as it was
+
+case 2:
+in this no error occurs  then we will commit the transaction 
+
+session.startTransaction()
+var custCollection = session.getDatabase("bank").cust;
+custCollection.updateOne({_id:0,({$inc:{bal:-100}})
+custCollection.updateOne({_id:1,({$inc:{bal:100}})
+
+now no error occurs 
+commit means save the transaction
+session.commitTransaction();
+session.endSession();
+
+now do db.cust.find() and you will see changes 
+
+now if you check transaction in replica , collection will have same copy of data  as primary  
+
+
+
+
+

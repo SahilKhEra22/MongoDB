@@ -1,0 +1,19 @@
+data types in mongo DB
+
+1.text -> string 
+2.Boolean -> true,false
+3.number -> integer 32bit , numberLong 64 bit , numberDecimal
+
+4. objectId-> created by mongodb itself
+5. ISODate -> for date
+6. Timestamp
+7. array
+8. emb document -> nested doc
+
+// all datatypes example
+databasename db.collection.insertOne({name:"sahil",isFunded:true,funding:88392849238,employees:[{name:"sahil",age:55}, {name:"khera",age:45}],foundedOn:new Date(), foundedOnTimestap:new Timestamp()})
+
+
+we can use typeof to check datatypes
+ 
+curdb typeof db.collection.findOne().variablename

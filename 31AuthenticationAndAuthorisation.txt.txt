@@ -1,0 +1,150 @@
+Authentication and Authorisation
+
+Enabling authentication in mongo db involves making configuration changes
+
+* to make changes go to following path in cmd:
+
+C:\Program Files\MongoDB\Server\<version>\bin\mongod.cfg
+
+* add Security field and enabled authorization
+
+security:
+   authentiction : enabled
+
+you can do this in vs code as well  
+recommended just open chat gpt and ask him to add service
+
+* now restart mongoDB Service
+
+Open the services application (Run > services.msc )
+find the mongoDB service (e.g., MongoDB Server <version> and restart it.)
+
+
+
+
+*********
+1. now there will be no db and collection will be present 
+what we can switch to them if we know the names 
+
+now use admin database 
+use admin>
+use command db.getUsers()
+we will get unauthorized
+
+2.now create a user
+
+db.createUser({
+user:"adminUser",
+pwd:"password",
+roles:["userAdminAnyDatabase","dbAdminAnyDatabase"]
+}) 
+
+* it will work || we have created a user which has all rights so he can create multiple users || this user can use both read and write operations as well as all other services
+
+* this user has user, pwd,roles(type array in which array elements will come)
+roles has two element these two elements give user all the rights including read and write 
+
+3. now we will have to login into the database 
+db.auth("username","password") -> it takes two arguments which we have created above ("adminUser","password") we will get 1 means logged in 
+
+* now we can use db.getUsers()
+* db.logOut -> two logout // now it is not a valid command
+
+
+4. let's create another user
+creating this in admin as well
+db.createUser({user:"sahil",password:"sahil",role:[read]})
+
+1.as this user is under admin db so it can be bounded witin that means it can perfome operation only under admin 
+2.this user has only read opeation means it can do nothing it can't use any command in adming databse
+
+5. let's delete it 
+
+first login into the databse with user which have all the rights 
+now
+db.dropUser("username") -> it will delete the user in database
+
+6. now create another user with same rights as adminUser
+we can't create users with same name
+
+*now login with this database || there is another way to login
+mongo --authenticationDatabase admin -u(username) sahil -p(password) sahil  // doesn't work now
+
+use older version
+
+db.auth("sahil","sahil")
+db.drop("adminUser")
+
+
+with --authenticationDatabse we log into the database // if we don't give this flas then mongodb can find username and password by itself
+-u means username
+-p means password
+ 
+it only authenticate the user but we don't go inside the databse
+
+login into databse with new user and delete the adminUser
+
+
+7. let's  create an another user in another database
+
+db.createUser({
+user:"ram",
+pwd:"ram".
+roles:[{role:"read",db:"college"},
+{role:"readWrite",db:"school"}] 
+// here we have mentioned db:college now it will be present in college dtabase where it's role is  read means users can read it only 
+// it will also present in school database where it's role is read and write 
+
+})
+
+****first login with the user which can perfomr operations on college db || a user can perform only on that database which database is mentioined in their role
+
+now swtich to college db
+here user can't insert any doc because here we have given role read 
+users can only see the doc college databse
+
+but
+in when you switch to school database 
+here user can read as well as write documents in any collection of school database
+because here we have mentioned role : readWrite
+ex:-
+use school
+db.collection.insertOne({}) // it will be inserted in the collection of scholl database but not in the collection of the college
+
+
+db.runCommand({connectionStatus:1}) // with this command we can check in which command we are present and how many users are present in it 
+
+
+
+
+we can give permissions to perform limited operatins on databses to user by providing them roles 
+
+we don't need to go into deep because we are devlopers no db admins 
+*****
+there are following types of roles
+1. read -> only for reading
+   readWrite -> only for reading and writing
+
+2. dbAdmin ->
+   userAdmin ->
+   dbOwner ->
+
+3. readAnyDatabase
+   readWriteAnyDatabase
+   userAdminAnyDatabase   -> this user role  can do any operation 
+   dbAdminAnyDatabase     -> this user role can do any operation
+
+4. clusterManager
+   clusterMoniter
+   hostManager
+   clusterAdmin
+
+5. dbOwner
+   userAdmin
+   userAdminAnyDataBase
+   root
+
+6. backup
+   restore
+
+

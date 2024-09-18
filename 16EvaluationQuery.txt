@@ -1,0 +1,147 @@
+Evaluation query operators 
+ 
+$expr
+$jsonSchema
+$mod
+$regex
+$text
+$where  this does not use 
+
+
+1. $expr -> expiration operator
+
+this operator takes a mongoDB expression as its argument and returns the result of the expression.
+you can use this operator to perform comparisons, arithmetic operations, and other types of expressions within the query pipeline  
+
+    ex:- db.collection.find({
+          $expr:{
+            $gt:["$field1","$field2"]
+          }
+         }] 
+this will find all dcouemnts in the collection where the value of 'field1' is greater than the value of 'field2'
+ 
+     ex:- db.collection.find({
+           $expr:{$gt:["$price",{$avg:"$price"}]}
+this will find all documents in the collection where the value of the price field is greater than the average value of the price field for all documents in the collection 
+
+    ex:- db.collection .aggregate([
+             {
+                $project:{
+                       sum:{$expr:{$add:["$a","$b"]}}
+
+                     }
+                 }
+           ]}
+this would return a new set of docs with a field sum that contains the value of a+b for each original document
+
+
+
+2. $jsonSchema 
+
+validate documents against the given JSON schema.
+This operator allows you to define rules for the structure, data types, and constraints of documents within a collection, ensuring that only documents that conform to the schema are allowed to be inserted or updated.
+
+       ex:- 
+              {
+  $jsonSchema: {
+    bsonType: "object",
+    required: ["name", "age"],
+    properties: {
+      name: {
+        bsonType: "string",
+        description: "must be a string and is required"
+      },
+      age: {
+        bsonType: "int",
+        minimum: 18,
+        description: "must be an integer and at least 18"
+      },
+      email: {
+        bsonType: "string",
+        pattern: "^.+@.+\..+$",
+        description: "must be a string and match the regular expression pattern"
+      }
+    }
+  }
+}
+
+	
+3. $regex -> regular expression  
+
+selects documents where value match a specified regular expression.
+
+This allows you to search for documents where a specific field matches a given regular expression pattern.
+
+Key Features of $regex:
+1. Pattern Matching:
+$regex allows you to match strings based on a regular expression, which can include wildcards, character classes, quantifiers, and more.
+
+2. Case Sensitivity:
+By default, regular expression matching is case-sensitive. However, you can make it case-insensitive using the i option.
+
+3. Partial Matches:
+You can match parts of a string, not just entire values, which makes $regex very flexible for searching text.
+ 
+
+syntax:-
+db.collection.find({name:{$regex: /pattern/, $options: "i"}})
+
+1. pattern: The regular expression pattern you want to match.
+2. $options: Optional flags to modify the behavior of the regex (e.g., i for case-insensitive, m for multiline).
+
+ex:- 
+1. simple matching:
+    db.collection.find({ name: { $regex: /^A/ } })
+* This query finds all documents where the name field starts with the letter "A".
+* The ^ character anchors the match to the beginning of the string.
+
+2. Case-Insensitive Matching:
+  db.collection.find({ name: { $regex: "alice", $options: "i" } })
+* This query matches documents where the name field contains "alice" in any case (e.g., "Alice", "ALICE", "aLiCe").
+
+3. Matching Any Character (Wildcard):
+   db.collection.find({ description: { $regex: ".*error.*" } })
+1. This matches documents where the description field contains the word "error" anywhere within the string.
+2. .* is a common regex pattern where . matches any single character, and * matches zero or more of the preceding element.
+
+4. Matching with Specific Character Sets:
+   db.collection.find({ code: { $regex: "[A-Z]{3}[0-9]{2}" } })
+* This matches documents where the code field contains three uppercase letters followed by two digits (e.g., "ABC12").
+
+5. Matching with Anchors:
+   db.collection.find({ email: { $regex: "@gmail\\.com$" } })
+*  This matches documents where the email field ends with "@gmail.com".
+* The $ anchor asserts that the match must occur at the end of the string, and the backslash (\\) escapes the dot (.) to match a literal dot.
+
+
+
+4. $text  -> perform text search
+
+to use the $text operator, you must create a text index on the field(s) you want to search. 
+A text index allows mongoDB to search for specific word and pharses in the indexed fields and return documents that match the search criteria. 
+
+ 
+ex:- 
+ db.students.createIndex({bio:"text"}) // first create a index in collection for text search 
+
+db.students.find({$text:{$search:"youtube"}}) 
+1. now which documents will have youtube in their bio filed they will be return 
+2. text will be search in bio because it is index and searching only done for index
+
+5. $mod
+this operator in MongoDB is used to perform a modulus operation in queries
+It allows you to find documents where the value of a specific field, when divided by a given number, has a specified remainder.
+
+syntax:
+{ field: { $mod: [divisor, remainder] } }
+divisor: The number by which the field value is divided.
+remainder: The remainder you want to match after the division.
+
+
+ex:- 
+db.students.find(age:{$mod:[2,0]})
+finding odd age
+here we are find the age 
+age will be divide by 2 and if remainder will be 0 then it will be return 
+
+

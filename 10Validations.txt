@@ -1,0 +1,96 @@
+validations in mongodb
+
+we have made a collection and we want to add some validations on that's fields
+
+
+1. if we want to add only collection in database
+   
+     1. db.createCollection("collectionname") -> it will create a empty collection in database
+     2. db.collectionname.({name:83492}) -> here name should be string not number so for it we can add validation 
+     
+
+
+
+2. to add validation we will add one more argument in it 
+           
+
+             db.createCollection("nonfiction",{
+              
+                validator:{
+
+                     $jsonSchema:{
+                     required:['name','price'], //means when we will insert document in this collection then name and price will be required if we will not give we will get                             error 
+                     properties:{   // here we are adding validation for required fileds 
+                        name:{ 
+                          bsonType:"string",  // here we want a string as a input from user
+                          description:"must be a number and required"
+
+                          },
+             
+                       price:{
+                          bsonType:"number",// here we want a number as a input 
+                          description:"must be a number and required"
+                         }
+                          
+          
+               }
+                }
+                 },
+             validationAction:"error"    //here we can write value warn it will give  warning , error default to throw error 
+
+               })
+
+
+*  when doc will be created by using the insert command then user can and as many as fields he want but name and price will be mandatory because these are required fields
+
+
+3. if we want to update validation :
+
+db.runCommand({   // run Command is used to modify the validation
+
+    collMod: "nonfiction", // callMod means collection modifier || it's value is a collection which we want to modify bz in database there are a lot of collections 
+
+    validator:{ // now add validator and update what you want to update or if you want to add some new validations you can add 
+
+        $jsonSchema:{
+        required:['name','price','authors'],
+
+         properties:{  
+ 
+          name:{ 
+         bsonType:"string", 
+         description:"must be a number and required"
+         },
+
+         price:{
+         bsonType:"number",
+         description:"must be a number and required"
+         },
+
+        authors:{
+            bsonType:"array",
+            description:"must be an array and is requried",
+            items:{   // author will be of array type and array will contains array element so here in items we will define the type of those array elements
+
+                bsonType:"object", // here array object will be objects 
+                required:["name","email"],  // here we required name and email in object of array
+
+                properties:{
+
+                    name:{
+                        bsonType:"string",
+                    },
+
+                    email:{
+                        bsonType:"string",
+                    },
+                }
+
+            }
+        }
+}
+
+}
+},
+validationAction:"error"
+})

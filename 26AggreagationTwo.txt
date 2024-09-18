@@ -1,0 +1,97 @@
+Aggregation part 2
+
+2. $toDouble operator 
+
+The $toDouble operator in MongoDB is used to convert a value to a double (i.e., a 64-bit floating-point number).
+This operator is often used in the aggregation framework, particularly within the $project or $addFields stages, to ensure that a value is in the correct numeric format for further processing.
+
+** Important Notes
+
+1. If the value in the expression cannot be converted to a double (e.g., a string that doesn’t represent a number), the operator returns null.
+2. If the field does not exist in the document, $toDouble will also return null.
+3. When converting from a string, the string must be a valid numeric representation (e.g., "123.45").
+
+
+db.teachers.aggregate([{$group:{_id:"$age",sumOfAgesInEachAgeGroup:{$sum:{$toDouble:"$age"}}}}])
+
+* this query will make group of ages.
+* sumOfAgesInEachAgeGroup will display total of all ages in a group.
+* $sum will increment  sumOfAgesInEachAgeGroup  by adding age of document in it.
+* The $toDouble operator is being used to convert the age field to a double (a 64-bit floating-point number) before summing it.
+
+ ->why converting it before summing
+ 1. Data Type Consistency: If the age field in the teachers collection is stored as a non-numeric type, such as a string (e.g., "25", "30"), you need to convert it to a numeric type before performing arithmetic operations like summing. The $toDouble operator ensures that the value of age is converted to a double, making it suitable for mathematical calculations.
+
+2. Avoiding Errors: If you try to sum values that are not numeric (e.g., summing strings), MongoDB will produce an error. By converting the age field to a double using $toDouble, you avoid potential errors and ensure that the summation is performed correctly.
+
+3. Precision: Even if the age field is stored as an integer, converting it to a double ensures that the result of the sum operation is also a double. This can be important in situations where precision is critical, even though ages are typically whole numbers.
+  
+  $toDouble: "$age": This part of the query converts each age value to a double.
+  $sum: After the conversion, the $sum operator sums all these double-converted age values within each group.
+
+
+
+query:-  
+1. Find Hobbies per age group
+
+db.collection.aggregate([{$group:{_id:"$age",hobbies:{$push:"$Hobbies"}}}])
+
+* The $push operator adds each hobbies field value from the documents in the group to an array.
+* If there are multiple documents with the same age, the hobbies array will contain all the hobbies from these documents.
+ 
+
+suppose a age group (ex: _id:16) have 5 docs and there is hobbies field in 3 then in result it will be like hobbies:[[arrayof1hobbiesof1stdoc],[2nddoc],[3rddoc]]
+
+if any group has no array then there will be empty array in result hobbies:[]
+
+2. we will get array inside array [[]] as result but we don't want array in array we want only hobbies array in result []
+
+we will use $unwind operator
+
+$unwind :-
+
+1. Deconstruct Arrays: $unwind splits an array field into multiple documents, with each document containing one element from the array.
+
+2. Facilitate Further Processing: After unwinding, you can perform operations like grouping, filtering, or projecting on the individual elements of the array.
+
+syntax:-
+{ $unwind: <field path> }
+<field path>: The path to the array field you want to unwind.
+
+ex:-
+* Consider a students collection with the following documents:
+[
+  { "name": "Alice", "hobbies": ["Reading", "Swimming", "Cycling"] },
+  { "name": "Bob", "hobbies": ["Hiking", "Chess"] }
+]
+
+* To unwind the hobbies array so that each hobby becomes its own document:
+db.students.aggregate([
+  { $unwind: "$hobbies" }
+])
+
+
+now in result there will be separate doc for each element of array means there will be  5 doc and other infor will be same for example name will be present within each doc and the id also be same
+
+Result:-
+[
+  { "name": "Alice", "hobbies": "Reading" },
+  { "name": "Alice", "hobbies": "Swimming" },
+  { "name": "Alice", "hobbies": "Cycling" },
+  { "name": "Bob", "hobbies": "Hiking" },
+  { "name": "Bob", "hobbies": "Chess" }
+]
+
+* Each document now contains only one hobby from the original hobbies array and it will be string not a array
+
+
+-> now we will use unwind in aggregation for our query
+
+db.collection.aggregate([{$unwind:"$Hobbies"},{$group:{_id:"$age",hobbies:{$push:"$Hobbies"}}}])
+
+now we will not get result in nested array 
+if there is age 25 group and it has 4 doc  and each doc has same age that is 25 
+but it will have diff hobbies and hobbies type will be string that's why we getting only array
+    
+
+

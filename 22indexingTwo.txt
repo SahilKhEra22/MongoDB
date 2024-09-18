@@ -1,0 +1,98 @@
+indexing in mongoDB part 2
+
+**1. single field indexes
+
+1. creating Index
+
+db.collection.createIndex({"age":1})
+
+* here value of age is telling the index will be stored in ascending order
+* -1 means descending 
+
+2. to check created indexes
+
+db.collection.getIndexes()
+
+3. delete index
+
+db.collection.dropIndex("age_1")
+
+
+** when not to use indexing in mongodb
+1. when collection is small
+2. when collection is frequently updated -> mean a lot write operations 
+3. when the queries are complex (multiple fields)
+4. when the collection is large (make less indices)
+
+**2. compound indexes
+
+1. creating index
+
+db.collection.createIndex({"age":1,"gender":1})
+
+* now index will be create with the combination of age and gender
+* now doc will be sort two times 
+  first sorting will be according to age
+  suppose we have two doc which has same age ex 30
+  now sorting will be according to gender in ascending manner
+  no if one gender is male and second is female
+  now doc with female will come first 
+* if gender will be at first position then all doc with female gender will       come first 
+  then in female indexing would we according to age then in male 
+
+now there are 3 cases
+
+1. db.collection.find({age:{$gte:27},gender:"male"})
+
+this will follow indexsearch
+first it will get all the doc with ages greater than 27
+after that it will sort those documents with gender for same age in ascending order
+
+2. db.collection.find({age:{$gte:27}})
+
+this will follow indexSearch
+it will fetch all the doc with age greater than 27 in ascending sort
+
+3. db.collection.find({gender:"male"})
+this will follow collection scan
+will not search in gender index
+because gender index is for age index and will be applied on age index
+
+
+* indexing also help in sorting 
+1. suppose we have indexing only on age field
+2. now age will be stored in b-tree in sorted manner
+3. now we can use this sorted b-tree in collection if want a sorted collection
+
+
+
+* db.collection.createIndex({name:1},{unique:true})
+// this will create a index in ascending order of name and same name will not be allowed in indexing.
+// { unique: true }: Ensures that the index enforces uniqueness, meaning not two documents can have the same value for the name field.
+if name fields in docs of collection will not be unique then index will not be created
+
+* partial filters
+db.collection.createIndex({age:1},{partialFilterExpression:{age:{$gt:22}}})
+
+//partialFilterExpression option defines a filter that determines which documents to include in the index. Only documents with an age greater than 22 will be indexed.
+
+similarly
+db.collection.createIndex({name:1},{partialFilterExpression:{gender:{$exists:true}}})
+//only those name will be indexed which will have gender in their doc
+
+* TTL (time to live) :- this will automatically delete documents from the collection after a specified time 
+
+this works on date fields and on single field index
+db.collection.createIndex({"expires":1},{expireAfterSeconds:3600})
+ 
+1. { "expires": 1 }: Specifies the field to index (expires in this case) and the sort order (1 for ascending).
+
+2. { expireAfterSeconds: 3600 }: Sets the TTL index to automatically remove documents 3600 seconds (1 hour) after the value in the expires field.
+
+
+
+
+
+
+
+

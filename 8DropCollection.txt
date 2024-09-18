@@ -1,0 +1,6 @@
+how to delete a database or collection in mongodb 
+
+
+1. opendatabase db.dropDatabse()  -> this will delete all the collections of opendatabse
+
+2. opendatabase db.collectionname.drop() -> this will delete only provided collection and return true 

@@ -1,0 +1,116 @@
+update array and nested array   
+
+using
+
+$pop 
+$pull 
+$addToSet
+
+
+1. For all experiences lesser than and equal to 1 year for all students add a new field called neglect: true
+
+//finding the field of the array or doc in which duration is <= 1
+db.collection.find({experience:{$elemMatch:{duration:{$lte:1}}}})
+
+to add neglect:true field in a nested array 
+
+1. now suppose if we have following 4 elements in array  according to filter in nested array 
+
+  {
+      experience:[
+
+          {company:"spotify",duration:1},
+          {company:"amazon",duration:1},
+          {company:"google",duration:1},
+          {company:"google",duration:2},
+
+         ]
+     }
+    
+now
+* we can update first matched element {company:"spotify",duration:1}
+* we want to update all matched element {means all three}
+* we want to update all, only matched elements does not matter 
+
+1. updating first matching element
+db.collection.updateMany({experience:{$elemMatch:{duration:{$lte:1}}}},{$set:{"experience.$.neglect":true}})
+
+"experience.$" -> this will select the first matched field of the nested doc 
+{$set:{"experience.$":neglect:true}} -> this will replace new element with all already present fields
+
+{$set:{"experience.$.neglect":neglect:true}} -> this will add new element with already present elements in first matched element 
+
+
+
+2. updating all matching and non matching elements of array 
+db.collection.updateMany({experience:{$elemMatch:{duration:{$lte:1}}}},{$set:{"experience.$[].neglect":true}})
+
+"experience.$[].neglect":true -> will update all matching non-matching
+elements of the doc || will add neglect:true  || query does not matter here
+
+
+3. updating all matched elements
+db.collection.updateMany({experience:{$elemMatch:{duration:{$lte:1}}}},{$set:{"experience.$[e].neglect":true}},{arrayFilters:[{ "e.duration":{$lte:1} }]})
+
+explanation:
+
+i. Filter Condition:
+   { experience: { $elemMatch: { duration: { $lte: 1 } } } }:
+This part of the query finds all documents where the experience array contains at least one element with a duration less than or equal to 1.
+
+ii. Update Operation:
+  { $set: { "experience.$[e].neglect": true } }:
+
+* This sets the neglect field to true for array elements in experience that match the condition specified in arrayFilters.
+
+* $[e] is an array filter identifier that refers to elements in the array that match the condition in arrayFilters.
+
+iii. Array Filters:
+
+ { arrayFilters: [{ "e.duration": { $lte: 1 } }] }:
+
+* This specifies that the update should apply only to elements in the experience array where the duration is less than or equal to 1.
+
+* The "e" in arrayFilters corresponds to the e in the $set operation, ensuring that only the matching elements are updated.
+
+
+4. adding a new field or doc in nested doc/array
+db.students.updateOne({name:"ram"},{$push:{experience:{compnay:"Meta",duration:2}}}) 
+
+* This query updates the document where the name is "ram" by pushing an object with the company and duration fields into the experience array
+
+* if we will try to add these details again then those will be added again || if we want don't add the  field going to be added already exists  then we use $addToSet
+ 
+otherway
+db.students.updateOne({name:"ram"},{$addToSet:{experience:{compnay:"Meta",duration:2}}})
+
+// this will add the doc if doesn't exist , if exists then there will be no change 
+
+
+5. removing a element from the array 
+
+db.students.updateOne({name:"ram"},{$pull:{experience:{compnay:"Meta",duration:2}}})
+
+it will remove all the matching elements from the array 
+
+
+other way 
+
+db.students.updateOne({name:"ram"},{$pop:{experience:1}})
+
+it will the last entry of the experience array of the doc
+
+db.students.updateOne({name:"ram"},{$pop:{experience:-1}})
+
+it will the first entry of the experience array of  array/doc
+
+
+
+
+
+
+
+ 
+
+
+

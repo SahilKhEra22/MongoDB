@@ -1,0 +1,51 @@
+1. mongo DB is a database server where we can create a lot of databases 
+2. it is non structural database that follows no structure to store data 
+3. in it we have database > a database has a collection or collections > a collection has multiple documents 
+4. documents are in json format
+    ex:- in a database there is a collection of employee name which has a following document
+
+{
+"name":"sahil",
+"age":23,
+"city":"Noida",
+"identity":{
+"adhaar":932840334,
+"pan":"TUJSLDS"
+}
+}
+
+* we can create a documents till 16 mb
+
+
+
+advantages
+1. it is flexible because it has no schema because if new data(document ) will come then simply add it is come on number
+2. less relations
+3. data is stored together
+
+
+
+what is BSON
+
+data is in json format for us but behind the seen it is stored in BSON format (binary json )
+
+* BSON's binary structure encodes type and length information,
+which allows it to be traversed much more quickly compared to JSON
+
+
+
+to stop mongo db servie 
+go to cmd > net stop mongoDB
+to start 
+net start mongoDB
+
+
+
+use command in a database show collections to see the collections of the database
+
+
+
+
+
+            
+                 

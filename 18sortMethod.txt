@@ -1,0 +1,44 @@
+sort method
+
+sort method is used to sort the mangoDB Documents 
+
+syntax:
+db.collection.find(query).sort({ field1: order1, field2: order2, ... })
+
+1.field1, field2, etc., are the fields you want to sort by.
+
+* order1, order2, etc., specify the sort order:
+  1 for ascending order.
+ -1 for descending order.
+
+
+
+
+ex:-
+Suppose you have a collection called users with documents that have name and age fields.
+
+1. db.users.find().sort({ age: 1 })  // will sort documents by age in ascending order(1,2,3,4,5,6,.....)
+
+2. db.users.find().sort({ name: -1 }) // will sort documents by name in descending order (z,y,x,w....)
+
+3. db.users.find().sort({ age: 1, name: 1 }) //  will sort the doc according to age in ascending order ,if two or more doc will have same age then they will be sorted according to second argument of sort that is name 
+
+4. db.user.find().sort({age:1,name:1}).skip(20) // it will skip first 20 doc then sort after those
+
+5. we can also set limit to sort function
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

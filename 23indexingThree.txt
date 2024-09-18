@@ -1,0 +1,44 @@
+indexing part 3
+
+what is a covered query
+
+A covered query is a query in which 
+
+1. all the fields in the query are part of an index
+2. all the fields returned in the query are in the same index
+
+ex:-
+db.collection.find({name:"mark"},{_id:0,name:1})
+
+it will use index scan because name is a index 
+this will find or return only names of documents because we have used projection here and names are index as well means it is a covered query
+
+* winning plan
+
+1. In MongoDB, a winning plan refers to the query execution plan that MongoDB selects as the most efficient for executing a query. MongoDB uses its query optimizer to evaluate multiple possible plans and chooses the one with the lowest estimated cost, which is then referred to as the "winning plan."
+
+In case of multiple indexes for same query
+suppose we have created two indexes  name and age
+    ex:- name_1_age_1 , name_1
+
+ db.collection.find({name:"mark"}) -> query 
+
+2. we want to search name in collection then search will be done by using index || if we have two and more indexes || mongoDB checks both indexes just before executing the query to ensure that which index will provide result fast 
+
+** in case of multiple indexes:
+MongoDB checks the performance of index on a sample of documents once the queries is run and set it as winning plan 
+
+then for second query of similar type it doesn't race them again 
+
+it store the winning plan in cache.
+
+* cache is reset after
+1. after 1000 writes
+2. index is reset
+3. mongo server is restarted
+4. other indexes are manipulated
+
+
+now if we want to see which plan is rejected and which plan is winning plan that you can see in rejectedPlans doc and winning plan doc in the .explain()
+
+

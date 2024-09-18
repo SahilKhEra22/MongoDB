@@ -1,0 +1,56 @@
+indexing in mongoDB part 1
+
+* suppose we search in a collection based on a filter in find() 
+* all the doc of the collection will be searched that process is called collection scan or Collscan
+* collection scan means -> search all the docs one by one to find filtered value
+
+||
+
+suppose if we do indexing of all documents of collection then the scan will be called index scan (ixscan)
+
+
+ex:-
+  
+  {
+    _id: ObjectId('66d0cff0b2fceb8d4dcdcdf9'),
+    name: 'jhon Smith',
+    age: 30,
+    gender: 'male',
+    occupation: 'software engineer'
+  }
+
+
+1.if we apply or make name field index of all the documents of a collection 
+2.then the names will be stored in separate collection(data structure) in sorted manner.
+3.if now we will apply searching query based on name then the pointer will search in data structure 
+4.there binary search will be applied
+5.and with name or index name of a pointer will also store which will store the information of the document whose index will be that name  
+
+
+
+* index search intro
+indexes are stored in a B(balanced)-tree structure
+~it stores 
+1. index keys
+2. pointers to the documents in the collection
+
+when a query is executed, mongoDB can use the index to quickly locate the documents \ that match the query by searching through the B-tree
+
+*The trade-off
+1. storage space -> b tree is stored separately 
+2. write performance -> if we add new doc in coll then the index of that doc will be add into b tree which will be time consuming
+
+There are several types of indexes available in mongoDB
+
+1. single field indexes
+2. compound indexes
+3. text indexes
+
+ex:- 
+db.collection.find({field:"value"}).explain()
+
+1. explain is applied only on queries
+
+db.collection.find({age:{$lte:30}}).explain("executionStats") -> it will give a object in which we can check like :- how many doc are scanned to get desire result , scan type etc
+
+

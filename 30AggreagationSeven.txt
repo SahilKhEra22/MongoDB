@@ -1,0 +1,27 @@
+Aggregation part 7
+
+1. Capped Collection in mongoDB
+we can set limit to document,how many docs should it contain  what should be the size of collection
+ex:-
+there is a collection and we want that there will be only 4 docs always 
+collection should contain only 4 latest documents 
+when we will get a doc and there is already 4 doc in a collection then oldest one will be deleted 
+
+then coll will be created in following way:
+
+db.createCollection("order_logs",{capped:true,max:4,size:100000}) 
+
+
+ // size will be 1 lakh bites of collection
+suppose if there is only 2 docs and size of collection reached its limit 
+now one more doc enters in coll then the oldest will also be deleted 
+
+
+*we can't make existing collection capped collection
+*it maintain order of docs like: fifo
+
+
+
+
+2. Using the $out Stage in Aggregation
+You can use the $out stage in an aggregation pipeline to copy all documents from one collection to another. This will create a new collection with the same documents as the source collection.

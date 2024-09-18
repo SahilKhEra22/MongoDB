@@ -1,0 +1,48 @@
+Managed & Unmanaged Database 
+
+1. mongodb atlas is a cloud based database service provided by mongodb
+
+2. It is a fully managed database platform designed to host and run mongodb database on the cloud infrastructure. 
+
+when you do everything  means you create service and use it  that called Unmanaged database
+when you only use services(like code query no need to do backup sharding replication etc) then it is called managed database and it is a managed service.
+
+3. fully managed service
+
+mongodb atlas takes care of the operational aspects of database management, such as setup, configuration, backup, scaling, and monitoring. 
+
+This allows developers to focus on building applications to focus on building applications without worrying about database administration.
+
+
+automatically helps in
+
+1. scalability:
+with mongodb atlas, you can easily scale your database resources up or down as your application's needs change. 
+
+This ensures that your database can handle increasing data volumes and traffic without any downtime.
+
+2. High Availability:
+The service provides automated failover and redundancy to ensure that your mongoDB database remain highly available, even in the case of hardware or network failures.
+ 
+3. security:
+mongodb atlas implements security best practices to protect your data.
+it offers features like encrypted data storage, network isolation, and authentication mechanism to ensure data privacy and integrity.
+
+4. monitoring and analytics:
+mongodb atlas provides real-time monitoring and analytics tools to help you understand the performance and behavior of your databases.
+This helps in identifying and optimizing performance bottlenecks.
+
+5. global deployment:
+mongodb atlas allows you to deploy your databases in various regions worldwide, enabling you to provide low-latency access to your users in different geographic locations.
+
+ex:- we are in india and we want to our database to be in us | we can do  because database is  on cloud | so we can provide database based on location of users 
+
+6. integration with other cloud services:
+It integrates with cloud services, such as AWS, Google cloud platform, and azure, making it easier to build complete cloud-based applications.
+
+
+
+
+
+
+

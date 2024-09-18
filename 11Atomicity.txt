@@ -1,0 +1,8 @@
+Atomicity
+
+if we do any transaction like updateOne deleteOne insertOnce
+
+now suppose we have big size document of 50 fields and inserting it in collection , processing of insertion is 25 half and database get stop  and when database will be restart then all the documents will be insert from starting from first field called atomicity 
+
+but when we are using many operations 
+suppose we are inserting multiple documents ex:-50 and process is half 25 and somehow database get stop but when database will be restart  the process will be continue after uploaded documents not from starting  

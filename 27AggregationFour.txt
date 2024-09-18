@@ -1,0 +1,81 @@
+Aggregation part 4
+
+$filter operator 
+1. The $filter operator in MongoDB is used within the aggregation framework to filter elements of an array based on a specified condition. 
+2. It allows you to selectively include elements in an array that meet certain criteria while excluding others.
+
+Syntax:
+$filter:{input:<array expression>,as<identifier>,Cond:<expression>}
+
+1. input: Specifies the array expression that you want to filter.
+
+2. as: A variable name to represent each element of the array during the evaluation of the condition. This is optional; if not specified, the default name is this.
+
+3. Cond: A condition expression that evaluates to true or false. Only elements for which this condition is true will be included in the output array.
+
+ex:-find average of scores for students whose age is greater than 20
+
+db.collection.aggregate([{$group:{_id:null,avgScore:{$avg:{$filter:{input:"$scores",as:"score",cond:{$gt:["$age",20]}}}}}}])
+
+1. avgScore: This field will hold the calculated average of the filtered scores.
+2. $filter Operator
+* input: "$scores": This specifies that the scores array field should be filtered.
+
+* as: "score": This creates a variable named score to represent each element in the scores array.
+
+* Cond: { $gt: ["$age", 20] }: This condition checks if the age field of the document is greater than 20.
+
+
+
+*** $bucket operator:
+The $bucket operator in MongoDB's aggregation framework is used to group documents into a specified number of buckets based on a field's values.
+
+when you want to categorize into discrete groups  based on specified boundaries.
+
+example :- we have students of ages like 21,22,32,36,45,48
+we want a divide these students into group based on ages -> we want students with ages 21 to 30 in a group a , students with ages 31 to 40 in a group B and students with ages 41 to 50 in group c
+
+ Syntax:-
+{
+$bucket:{
+$groupBy:<expression>, //The field or expression to group by
+boundaries:[<boundary1>,<boundary2>,....], // Defines the bucket boundaries
+default:<expression>, // (Optional) Bucket for values that don't fit into the defined boundaries 
+output:{
+<outputField>:{<accumulator>:<exoression>}// (Optional) Output fields and their aggregations
+}
+}
+}
+
+output:-
+
+* groupBy: The field or expression whose values are used to categorize documents into buckets.
+* boundaries: An array of boundary values that define the ranges for the buckets. The first bucket will include values from the first boundary up to (but not including) the second boundary, and so on.
+* default: An optional bucket where values that do not fall within the specified boundaries are placed.
+* output: An optional object that defines fields in the output documents and the operations that produce them.
+
+Query:-
+1. Categorize male teachers based on their ages into three buckets ages less than 30, ages between 30 and 40, and ages greater than 40.
+
+db.teachers.aggregate([
+{$match:{gender: "male"}},
+{$bucket:{groupBy:"$age",
+boundaries:[0,30,40],
+default: "Greater than 40 wala group",
+output:{count:{$sum:1},names:{$push:"name"}}}}
+])
+
+1.$match Stage:-
+* This stage filters the documents in the teachers collection to include only those where the gender field is "male".
+* The rest of the aggregation pipeline will only process these male teachers.
+
+2.$bucket Stage:-
+
+1. groupBy: "$age": The age field is used to group the documents into different buckets.
+2. boundaries: [0, 30, 40]: The buckets are defined by these boundaries:
+  * The first bucket includes ages from 0 to less than 30.
+  * The second bucket includes ages from 30 to less than 40.
+3. default: "Greater than 40 wala group": If the age of a teacher is 40 or greater, they are placed in this "default" bucket labeled "Greater than 40 wala group".
+4. output:
+  * count: { $sum: 1 }: This counts the number of documents (teachers) in each bucket.
+  * names: { $push: "$name" }: This creates an array of the names of teachers in each bucket.

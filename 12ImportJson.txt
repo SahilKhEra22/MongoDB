@@ -1,0 +1,20 @@
+import json in mongoDB
+
+we can do this with mongo import 
+our mongoserver should be start to use mongo import
+step 1:
+first download mongoDB database tools  it was inbuilt before 4.0
+install it and copy the path till bin folder 
+paste in sys env variables
+now we can use mongo import command in cmd
+
+
+step2:
+1.not copy the path of the json file which you want to import
+2.open cmd 
+3.write mongoimport pastepath -d(databasename) college (if it was not created then will be created) -c(collectioname) students --jsonArray --drop
+
+-d means databasename
+-c means collectionname
+--jsonArray here we are mentioning that json file is in array form if we don't mention it then all the json file's data will be added to single document
+--drop means if collection and database already present then delete them and create again

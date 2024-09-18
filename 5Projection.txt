@@ -1,0 +1,9 @@
+Projection : means we have a document in collection and we want only names of the students that is called projection 
+
+
+* curdb  db.students.find({},{name:1})  -> (first {} will select all docs, {name:1}is a option it will sort the collection and provide only names)
+
+            1. name:1 means we want this field and other will be assigned 0 except id
+            2. if we don't want id with result then set _id:0
+            3. db.students.find({},{name:1,_id:0})
+ 

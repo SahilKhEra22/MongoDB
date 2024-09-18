@@ -1,0 +1,43 @@
+Aggregation part 3
+
+1. Find number of students per each hobbies 
+
+db.students.aggregate([{$unwind:"Hobbies"},{$group:{_id:"$Hobbies",count:{$sum}}}])
+
+2. Find average age of all students
+
+db.collection.aggregate([{$group:{_id:null,averageAge:{$avg:"age"}}}])
+
+$avg: This is the aggregation operator used to calculate the average value of the specified field.
+
+if you specify _id:null in the $group operator, it means that all the documents in the collection will be grouped together into a single group.
+
+3. Find the total number of hobbies for all the students in a collection
+
+db.collection.aggregate([{$unwind:"$Hobbies"},{$group:{_id:null,count:{$sum:1}}}])
+
+one more way 
+
+db.collection.aggregate([{$group:{_id:null,count:{$sum:{$size:"$Hobbies"}}}}])
+
+$size operator returns total number of element in array 
+
+this qerry will give error if there is a doc which will not have hobbies field and should be array because $size can be used on array 
+
+so we can use $ifNull
+db.collection.aggregate([{$group:{_id:null,count:{$sum:{$size:{$ifNull:["$Hobbies",[]]}}}}])
+
+* $ifNull has a array as a value 
+* if takes two arguments 
+* if hobbies field will empty then it will return second argument that is empty array
+* if hobbies field is not empty then it will return first argument that is Hobbies
+
+4. List all hobbies
+
+db.collection.aggregate([{$unwind:"Hobbies"},{$group:{_id:null,allHobbies:{$push:"$Hobbies"}}}])
+
+if some hobbies fields of docs will have same hobby then it will repeat in the allHobbies as a result
+
+so if we don't want repeated hobbies then we can use $addToSet operator 
+
+db.collection.aggregate([{$unwind:"Hobbies"},{$group:{_id:null,allHobbies:{$addToSet:"$Hobbies"}}}])

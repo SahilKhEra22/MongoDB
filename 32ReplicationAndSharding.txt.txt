@@ -1,0 +1,70 @@
+Replication and Sharding : Scaling your database for performance 
+
+1. replication:-
+suppose client has request client means shell 
+then request go to mongodb server and server gives data has response 
+
+now if server goes down for some region then what will we do how will get data
+then we can do we can replicate the data of primary server into two more servers(called replica 1 and replica 2), the process called replication means duplication of data.
+
+
+now if we get a request then priority will be give to response
+if there is write request then replication is done asynchronously (we can set time like after every 2 hours replication should be done )
+after 2 hours or whatever time will be give the primary database and replica will be compare for new data 
+
+advantages:
+1. fault tolerance :- if we get any kind of fault in primary server then response can be sent by replica.
+
+2.  suppose primary server getting a lot of requests to read data as well as write then
+primary node can redirect read requests to one of replicas then read req will be handeled by replica node and write will by primary node.
+
+  
+2. Sharding:-
+
+1.suppose we have 1 tb storage in laptop for website
+2.website suddenly start getting traffic now 1 tb is got full
+3.then we modified our storage 1tb to 10tb but after some time again got full then we upgraded to 100gb again got full this process is called vertical scaling.
+4.there will be limit of laptop (like we can't upgrade ram more than 64gb)
+
+
+Sharding is used to achieve horizontal scaling 
+1. now we have multiple machines(laptops) called shards  
+2. suppose we have 3 shards and we got 3 tb data from the website to store 
+3. we can distribute that data among those 3 shards like 1 tb for each
+4. all the multiple shards are connected to a router called mongos
+5. mongos recieves the request from shell , suppose mongos got a write request then mongos will driect that request to one of the shard/server 
+6. when mongos got read call then it known where have to go 
+
+* this is done by db admin not by developer 
+
+
+ex:-
+{
+_id:1
+name:"sahil",
+age:60
+}
+
+we have to shard/group this data among 3 servers a, b and c
+
+mongos got write request before sharding it should know on the basis what sharing should be done then it can decide where to send the a, b and c 
+
+sh.shardCollection("<database_name>.<collection_name>"),{"<sharding_key>":1})
+sh :- means shell helper
+sharding_key :- it can be group of fields or a field 
+The choice of shard key is critical. A poorly chosen shard key can lead to uneven data distribution and hot spots, where one shard gets much more traffic than others.
+
+we give name:1
+now it will make name field sharding key in give collection
+whenever a doc of that collection is give to mongos then mongos will do sharding on namefield
+mongos will distribute the name (sahil) equally among three servers 
+choose shard key that can be equally distributed among servers 
+
+
+
+advantages:-
+1. scalability :- we can add more shards to distribute data if getting more traffic
+2. high availability :- failure of one shard does not bring down the entire database.
+3. performance :- By distributing queires and data across shards , mongodb can handle a higher number of operations simultaneously.
+
+ 

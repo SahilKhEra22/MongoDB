@@ -1,0 +1,67 @@
+Aggregate part 6
+
+$project stage is used in the aggregation pipeline to reshape documents, include, exclude, or add new  fields, and create computed fields.
+
+
+it allows you to  customize the output of your aggregation query by specifying which fields to include or exclude, applying expressions to existing fields, and renaming fields. 
+
+syntax:-
+
+{
+  $project: {
+    <field1>: <expression>,
+    <field2>: <expression>,
+    ...
+  }
+}
+
+
+* <field1>, <field2>: The names of the fields in the output document.
+* <expression>: The value or transformation for the field. This can be 1 (include the field), 0 (exclude the field), or a more complex expression to transform the field's value.
+
+example:-
+
+1. Including and Excluding Fields
+
+Suppose you have a collection employees with documents like this:
+{
+  "_id": 1,
+  "name": "John Doe",
+  "age": 30,
+  "department": "Sales",
+  "salary": 50000
+}
+
+
+query:
+1. You can use $project to include only the name and salary fields:
+db.employees.aggregate([
+  {
+    $project: {
+      name: 1,
+      salary: 1,
+      _id: 0  // Exclude the _id field
+    }
+  }
+])
+
+Result:
+{
+  "name": "John Doe",
+  "salary": 50000
+}
+
+
+2. if we want all fields except age then we will do following:
+db.employess.aggregate([{$project:{age:0}}]) // it means it doesn't want only one field 
+
+3.if want to change field's name
+db.employess.aggregate({$project:{fullname:"$name"}}) 
+
+4. we want total salary of one year
+db.employess.aggregate({$project:{_id:0,name:1,monthlySalary:"$salary",annualSalary:{$multiply:[12,"$salary"]}}})
+
+$multiply operator takes an array and it multiplies all the values present in array
+
+
+*we can use $project with other stages of pipeline of aggregation 

@@ -1,0 +1,60 @@
+query 
+
+1. how many students who have worked in 3 companies 
+
+db.collection.find({experience:{$size:3}})  
+ this will return doc in which experience field's value will be 3
+
+db.collection.find({experience:{$size:{$gte:3}}})
+we can't do this we can't pass expression to $size function
+
+to do this use following
+
+db.collection.find({experience:{$exists:true},{$expr:{$gte:[{$size:"$experience"},3]}}]})
+this will first check if experience exists in a doc then apply second query 
+in this it will check all the doc in the collection and apply second query only when the first one will be true  
+
+
+2. students who have hobbies walking and reading
+
+db.collection.find({hobbies:["walking","Reading"]})
+ this will return all the doc with the hobbies walking and reading
+ but if hobbies will be reading and walking then it will return nothing
+ 
+
+db.collection.find({hobbies:{$all:["walking","Reading"]}})
+ this will return all the doc with the hobbies walking and reading
+ it will also return if hobbies will be reading and walking
+ but it will return only when both elements will be present in a doc if any of both will be missing then it will return nothing
+
+db.collection.find({hobbies:{$all:["walking","Reading"]}})
+this will return doc in which any of both hobbies will be present 
+order of element does not matter here
+
+3. document that have at least a product with name apple and quantity greater than 15
+
+
+ex:-
+[{
+_id:1,
+products:[
+{name:"apple",quantity:10},
+{name:"orange",quantity:5},
+{name:"banana",quantity:20},
+]
+}]
+
+db.collections.find({$and:[{"products.name":"apple"},{"products.quantity":{$gt:11}}]})
+
+1. this querry will search for all those documents in which name in product field will be apple and quantity will be greater than 11 . it will check doc from outside and who so ever doc will have these to condition even if in diff line will be returned
+
+to search for a particular filed of a doc we use following query
+
+db.collection.find({product.{$elemMatch:{quantity:{$gt:11},name:"apple"}}})
+ 
+this will return only those doc who will have both conditions present in same line
+
+
+
+
+  

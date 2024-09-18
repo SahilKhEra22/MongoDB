@@ -1,0 +1,41 @@
+ embedded (Nested) documents in mongo
+
+whenever we use $ sign in mongo db means we are using a reserve word 
+
+1. now suppose we want to update a document in database whose name is sahil
+
+* opendatabase  db.collectionname.updateOne({name:"sahil"},{$set:{idCards:{hasPanCard:false,hasAdhaarCard:true}}})
+
+              1. updateOne method is used to update the document's data
+              2. it takes two objects as input first one is query  used to find the document with unique data and second is data to be update 
+              3. $set operator is used to update the data in mongoDB  if field exists then it get changed otherwise it will be added 
+              4. in this case we are adding a new field which is nested object called idCards
+              5. means doc inside doc
+
+
+
+
+2. now suppose we want to update all the doc of coll
+
+opendatabse db.collectionname.updateMany({},{$set:{hobbies:["Anime","cooking"]}}) 
+
+                1. here updateMany is used to update all the document
+                2. first arguments is empty array which means all the documents
+                3. next $set operator will add hobbies filed in all the documents
+
+
+
+3. now we want to search only those students which has cooking in their hobbies
+
+ opendatabse db.collectionname.find({hobbies:"cooking"}) // mongoDb is smart will find by itself that hobbies is a array and we are searching for the doucments with hobbies field
+
+4. to count all the documents we use count method
+   opendatabse db.collectionname.find({hobbies:"cooking"}).count()
+
+5. now we want documents which has pancard
+   opendatabse db.collectionname.find({"idCards.hasPanCard":true})
+               1. here it will search for true haspancard field inside idCards    means "key.key":value
+
+
+
+
